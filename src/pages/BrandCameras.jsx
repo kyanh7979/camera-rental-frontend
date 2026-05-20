@@ -43,8 +43,9 @@ function BrandCameras() {
       setIsLoading(true);
       setLoadError('');
       try {
-        const endpoint =
-          import.meta.env.VITE_CAMERA_ENDPOINT || '/cameras';
+        // Strip any leading /api prefix to avoid /api/api/... double-path
+        const rawEndpoint = import.meta.env.VITE_CAMERA_ENDPOINT || '/cameras';
+        const endpoint = rawEndpoint.replace(/^\/api/, '') || '/cameras';
         const res = await api.get(endpoint);
         const raw = res?.data;
         let data = [];

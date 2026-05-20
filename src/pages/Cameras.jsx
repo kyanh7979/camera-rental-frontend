@@ -86,8 +86,11 @@ function Cameras() {
       setIsLoading(true);
       setLoadError('');
       try {
-        const endpoint = import.meta.env.VITE_CAMERA_ENDPOINT || '/cameras';
-        const res = await api.get(endpoint, { params: { size: 200 } });
+        // Strip any leading /api prefix to avoid /api/api/... double-path
+        // baseURL already ends with /api, so endpoint should be relative path like /cameras
+        const rawEndpoint = import.meta.env.VITE_CAMERA_ENDPOINT || '/cameras';
+        const endpoint = rawEndpoint.replace(/^\/api/, '');
+        const res = await api.get(endpoint || '/cameras', { params: { size: 200 } });
         const raw = res?.data;
         let data = [];
 

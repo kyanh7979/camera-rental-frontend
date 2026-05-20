@@ -23,7 +23,11 @@ import { showSuccess, showError } from '../components/ui/ToastNotification.jsx';
 import { ROUTES } from '../constants/routes.js';
 import useAuth from '../hooks/useAuth.js';
 
-const CAMERA_ENDPOINT = import.meta.env.VITE_CAMERA_ENDPOINT || '/cameras';
+const CAMERA_ENDPOINT = (() => {
+  const raw = import.meta.env.VITE_CAMERA_ENDPOINT || '/cameras';
+  // Strip /api prefix to avoid /api/api/... when baseURL already includes /api
+  return raw.replace(/^\/api/, '') || '/cameras';
+})();
 const API_BASE_URL = (() => {
   const env = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
   const base = env.replace(/\/$/, "");
