@@ -109,13 +109,6 @@ function Profile() {
               <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Email</p>
               <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{user?.email || 'N/A'}</p>
             </div>
-
-            <div>
-              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Hạng thành viên</p>
-              <p className="text-sm" style={{ color: 'var(--text-primary)' }}>
-                Black Card (tài khoản mô phỏng)
-              </p>
-            </div>
           </div>
         </div>
 
