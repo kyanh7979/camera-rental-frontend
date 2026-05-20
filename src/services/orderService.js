@@ -21,6 +21,16 @@ const orderService = {
     }
   },
 
+  getOrderByCode: async (orderCode) => {
+    try {
+      const response = await api.get(`/orders/code/${orderCode}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching order by code:', error);
+      throw error;
+    }
+  },
+
   cancelOrder: async (orderId) => {
     try {
       const response = await api.put(`/orders/${orderId}/cancel`);

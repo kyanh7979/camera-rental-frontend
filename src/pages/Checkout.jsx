@@ -198,6 +198,8 @@ function Checkout() {
           if (!isRentNowMode) {
             clearCart();
           }
+          // Save orderCode to localStorage before navigating
+          localStorage.setItem('lastOrderCode', orderCode);
           navigate(ROUTES.PAYMENT_SUCCESS);
           clearInterval(interval);
         }

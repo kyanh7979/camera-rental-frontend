@@ -2,277 +2,342 @@
 # SPRING BOOT CORS + SECURITY PATCH
 # camera-rental-backend
 # ============================================================
-# Apply these changes to your existing:
-#   1. SecurityConfig.java
-#   2. WebConfig.java (if you have one)
-#   3. application.yml / application.properties
-#
+# Apply to: SecurityConfig.java (or WebConfig.java if separate)
 # DO NOT delete JWT filter — CORS patch only adds origins
+# DO NOT create duplicate CORS beans
 # ============================================================
 
-# ============================================================
-# FILE 1: src/main/resources/application.yml (or .properties)
-# ============================================================
-# Add this at the bottom of application.yml:
-# (If you already have app.cors section, REPLACE it entirely)
 
 # ============================================================
-# FILE 2: src/main/java/com/example/config/SecurityConfig.java
+# SECTION 1: Find your SecurityConfig.java
 # ============================================================
-# Find your @Bean SecurityFilterChain method and update it.
-# Find your CorsConfigurationSource @Bean and update it.
+# Look in your backend project for:
+#   src/main/java/com/example/config/SecurityConfig.java
+#   or: src/main/java/com/lensrent/config/SecurityConfig.java
+#   or similar package under src/main/java
 #
-# Below is the FULL replacement — copy everything after the
-# package declaration and keep your existing imports/annotations.
+# DO NOT create a new file — modify the existing SecurityConfig.java
 # ============================================================
 
 
 # ============================================================
-# COPY FROM HERE DOWNWARD INTO SecurityConfig.java
-# (Keep your existing package + imports)
+# SECTION 2: What to do in SecurityConfig.java
+# ============================================================
+# You need to do ALL THREE of these inside your existing
+# SecurityConfig.java file:
+#
+#   A. ADD @Bean CorsConfigurationSource method
+#      (if it doesn't already exist)
+#
+#   B. UPDATE @Bean SecurityFilterChain to call .cors(...)
+#      AND add OPTIONS /** permitAll BEFORE other matchers
+#
+#   C. ENSURE @EnableWebSecurity is present on the class
+#      (it usually already is — don't remove it)
+#
+# Keep ALL existing code: JWT filter registration, endpoint matchers,
+# other beans. Only add/modify CORS parts below.
 # ============================================================
 
-/*
-REPLACE your existing SecurityConfig.java content with this:
-(Keep your package declaration, keep ALL existing imports,
-keep @Configuration/@EnableWebSecurity annotations,
-keep any existing @Bean methods you have — ONLY replace
-the two methods below: securityFilterChain and corsConfigurationSource)
-*/
 
---- BEGIN SecurityConfig.java ---
-package com.example.config;  // <-- UPDATE to your actual package
+# ============================================================
+# SECTION 3: Step-by-step patch instructions
+# ============================================================
+#
+# STEP 1: Add these imports to SecurityConfig.java if not already present:
+#
+# import org.springframework.web.cors.CorsConfiguration;
+# import org.springframework.web.cors.CorsConfigurationSource;
+# import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+# import java.util.Arrays;
+# import java.util.List;
+#
+# STEP 2: Add this @Bean method to SecurityConfig.java:
+#          (place it alongside your other @Bean methods)
+#
+# STEP 3: In your existing securityFilterChain method, FIND the line
+#          that configures HttpSecurity and ADD .cors(cors -> ...) at the start:
+#
+#          http
+#              .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+#              .csrf(csrf -> csrf.disable())
+#              ...
+#
+# STEP 4: In your existing authorizeHttpRequests block, ADD this as the
+#          FIRST .requestMatchers line (BEFORE all other matchers):
+#
+#          .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+#
+#          This ensures OPTIONS preflight requests pass through without JWT check.
+#
+# STEP 5: Do NOT remove your existing JWT filter registration:
+#          .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+# ============================================================
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.Arrays;
-import java.util.List;
 
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
+# ============================================================
+# SECTION 4: Copy this @Bean method into SecurityConfig.java
+# ============================================================
+# Place this method inside your SecurityConfig class,
+# alongside other @Bean methods you already have.
+# Do NOT put it inside another method.
 
-    // <<< KEEP your existing JwtAuthenticationFilter import + field + constructor >>>
+--- BEGIN CORS_BEAN ---
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // PRODUCTION: Vercel production + all preview domains
+        // *.vercel.app matches:
+        //   camera-rental-frontend.vercel.app
+        //   camera-rental-frontend-abc123.vercel.app
+        //   camera-rental-frontend-p9h9ues9m-lekyanh1110-4706s-projects.vercel.app
+        //   etc.
+        configuration.setAllowedOriginPatterns(List.of(
+            "https://*.vercel.app",
+            "http://localhost:5173",
+            "http://localhost:3000"
+        ));
+
+        // Credentials: required for Authorization header + cookies
+        configuration.setAllowCredentials(true);
+
+        // Methods
+        configuration.setAllowedMethods(Arrays.asList(
+            "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
+        ));
+
+        // All headers
+        configuration.setAllowedHeaders(List.of("*"));
+
+        // Expose headers so frontend can read them
+        configuration.setExposedHeaders(Arrays.asList(
+            "Authorization",
+            "Content-Type"
+        ));
+
+        // Cache preflight for 1 hour
+        configuration.setMaxAge(3600L);
+
+        // Apply to all paths
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+--- END CORS_BEAN ---
+
+
+# ============================================================
+# SECTION 5: Updated securityFilterChain template
+# ============================================================
+# Your securityFilterChain method should look like this.
+# Keep your existing endpoint matchers (the ones with .permitAll()).
+# Keep your JWT filter registration.
+# Just add .cors(...) at the start and OPTIONS permitAll at the top.
+
+--- BEGIN securityFilterChain_Template ---
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            // Enable CORS — this MUST be first, before any security filters
+            // CORS filter will handle OPTIONS before JWT filter sees it
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Allow public endpoints
-                .requestMatchers(
-                    "/api/auth/**",
-                    "/api/cameras/**",
-                    "/api/ai/status",
-                    "/api/ai/chat",
-                    "/api/banners/home",
-                    "/api/banners/home/primary",
-                    "/api/payos/**",
-                    "/api/payment/payos/**",
-                    "/api/reviews/camera/**",
-                    "/api/orders/payment-return/**",
-                    "/uploads/**",
-                    "/api/auth/reset-password"
-                ).permitAll()
+                // OPTIONS preflight — MUST be first to bypass JWT for preflight
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                // --- Your existing permitAll endpoints ---
+                // (keep these exactly as they are)
+                // .requestMatchers("/api/auth/**").permitAll()
+                // .requestMatchers("/api/cameras/**").permitAll()
+                // .requestMatchers("/api/banners/home").permitAll()
+                // etc.
+
                 // Admin endpoints require authentication
-                .requestMatchers("/api/admin/**").authenticated()
-                // All other endpoints require authentication
+                // .requestMatchers("/api/admin/**").authenticated()
+
+                // All other requests require authentication
                 .anyRequest().authenticated()
             )
-            // <<< KEEP your existing JWT filter registration — do NOT remove this line >>>
+            // <<< KEEP YOUR EXISTING JWT FILTER REGISTRATION — do NOT remove this >>>
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        // --- Allowed Origins ---
-        // PRODUCTION: Vercel frontend URLs
-        configuration.setAllowedOriginPatterns(List.of(
-            "https://camera-rental-frontend.vercel.app",
-            "https://camera-rental-frontend-*.vercel.app"
-        ));
-
-        // DEVELOPMENT: Localhost
-        configuration.setAllowedOrigins(List.of(
-            "http://localhost:5173",
-            "http://localhost:3000"
-        ));
-
-        // --- Allowed Methods ---
-        configuration.setAllowedMethods(Arrays.asList(
-            "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
-        ));
-
-        // --- Allowed Headers ---
-        // "*"" not allowed when allowCredentials=true
-        // List specific headers explicitly
-        configuration.setAllowedHeaders(Arrays.asList(
-            "Authorization",
-            "Content-Type",
-            "X-Requested-With",
-            "Accept",
-            "Origin",
-            "Access-Control-Request-Method",
-            "Access-Control-Request-Headers",
-            "Cache-Control"
-        ));
-
-        // --- Expose Headers ---
-        configuration.setExposedHeaders(Arrays.asList(
-            "Access-Control-Allow-Origin",
-            "Access-Control-Allow-Credentials",
-            "Authorization"
-        ));
-
-        // --- Credentials ---
-        configuration.setAllowCredentials(true);
-
-        // --- Preflight cache ---
-        configuration.setMaxAge(3600L);
-
-        // --- Apply to all paths ---
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
-    }
-}
---- END SecurityConfig.java ---
+--- END securityFilterChain_Template ---
 
 
 # ============================================================
-# ALTERNATIVE: If you have a SEPARATE WebConfig.java
+# SECTION 6: Example — BEFORE and AFTER SecurityConfig.java
 # ============================================================
-# Some projects use a dedicated WebConfig for CORS instead of
-# putting it in SecurityConfig. If that's your case, replace
-# WebConfig.java with this instead:
-# ============================================================
-
---- BEGIN WebConfig.java ---
-package com.example.config;  // <-- UPDATE to your actual package
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import java.util.Arrays;
-import java.util.List;
-
-@Configuration
-public class WebConfig implements WebMvcConfigurer {
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-            .allowedOriginPatterns(
-                "https://camera-rental-frontend.vercel.app",
-                "https://camera-rental-frontend-*.vercel.app"
-            )
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-            .allowedHeaders("*")
-            .exposedHeaders("Authorization", "Access-Control-Allow-Origin")
-            .allowCredentials(true)
-            .maxAge(3600L);
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of(
-            "https://camera-rental-frontend.vercel.app",
-            "https://camera-rental-frontend-*.vercel.app"
-        ));
-        configuration.setAllowedOrigins(List.of(
-            "http://localhost:5173",
-            "http://localhost:3000"
-        ));
-        configuration.setAllowedMethods(Arrays.asList(
-            "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
-        ));
-        configuration.setAllowedHeaders(Arrays.asList(
-            "Authorization", "Content-Type", "X-Requested-With",
-            "Accept", "Origin", "Access-Control-Request-Method",
-            "Access-Control-Request-Headers", "Cache-Control"
-        ));
-        configuration.setExposedHeaders(Arrays.asList(
-            "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials", "Authorization"
-        ));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
-        return source;
-    }
-}
---- END WebConfig.java ---
-
-
-# ============================================================
-# IMPORTANT NOTES
-# ============================================================
-
-# 1. CREDENTIALS REQUIREMENTS
-# When setAllowCredentials(true):
-#   - CANNOT use allowedOrigins("*") → use allowedOriginPatterns instead
-#   - CANNOT use allowedHeaders("*") → must list headers explicitly
-#   - Frontend must include: credentials: 'include' in fetch
-#                           or: withCredentials: true in axios
+# BEFORE (what your file probably looks like now):
 #
-# Your frontend api.js ALREADY has credentials — the axios
-# interceptor adds Authorization header, and browsers send cookies.
-# So setAllowCredentials(true) is CORRECT and must stay.
+# @Configuration
+# @EnableWebSecurity
+# public class SecurityConfig {
+#
+#     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+#
+#     @Bean
+#     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+#         http
+#             .csrf(csrf -> csrf.disable())
+#             .sessionManagement(session ->
+#                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+#             .authorizeHttpRequests(auth -> auth
+#                 .requestMatchers("/api/auth/**").permitAll()
+#                 .requestMatchers("/api/cameras/**").permitAll()
+#                 .requestMatchers("/api/admin/**").authenticated()
+#                 .anyRequest().authenticated()
+#             )
+#             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+#
+#         return http.build();
+#     }
+# }
+#
+# AFTER (what it should look like after applying this patch):
+#
+# @Configuration
+# @EnableWebSecurity
+# public class SecurityConfig {
+#
+#     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+#
+#     // ADD THIS BEAN
+#     @Bean
+#     public CorsConfigurationSource corsConfigurationSource() {
+#         CorsConfiguration configuration = new CorsConfiguration();
+#         configuration.setAllowedOriginPatterns(List.of(
+#             "https://*.vercel.app",
+#             "http://localhost:5173",
+#             "http://localhost:3000"
+#         ));
+#         configuration.setAllowCredentials(true);
+#         configuration.setAllowedMethods(Arrays.asList(
+#             "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
+#         ));
+#         configuration.setAllowedHeaders(List.of("*"));
+#         configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+#         configuration.setMaxAge(3600L);
+#         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+#         source.registerCorsConfiguration("/**", configuration);
+#         return source;
+#     }
+#
+#     @Bean
+#     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+#         http
+#             // ADD THIS LINE at the start
+#             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+#             .csrf(csrf -> csrf.disable())
+#             .sessionManagement(session ->
+#                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+#             .authorizeHttpRequests(auth -> auth
+#                 // ADD THIS LINE as the FIRST matcher
+#                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+#                 // Keep all your existing matchers below
+#                 .requestMatchers("/api/auth/**").permitAll()
+#                 .requestMatchers("/api/cameras/**").permitAll()
+#                 .requestMatchers("/api/admin/**").authenticated()
+#                 .anyRequest().authenticated()
+#             )
+#             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+#
+#         return http.build();
+#     }
+# }
 
-# 2. JWT FILTER STAYS
-# The JwtAuthenticationFilter (or JwtAuthFilter) registration
-# in SecurityConfig must NOT be removed:
-#   .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-# This line ensures JWT authentication still works after CORS fix.
 
-# 3. OPTIONS PREFLIGHT
-# Spring Security must NOT block OPTIONS requests.
-# By adding .cors(cors -> cors.configurationSource(...)) to HttpSecurity,
-# the CORS filter runs BEFORE security filters, so OPTIONS is handled
-# before JWT validation. This fixes the preflight 401/403 error.
+# ============================================================
+# SECTION 7: If you already have a CorsConfigurationSource bean
+# ============================================================
+# If your SecurityConfig.java ALREADY has a corsConfigurationSource()
+# method, just UPDATE it with the values above.
+# Do NOT create a second bean — update the existing one.
+#
+# Key things that must be set correctly:
+#   setAllowedOriginPatterns(...)  ← use THIS, not setAllowedOrigins with "*"
+#   setAllowCredentials(true)
+#   setAllowedHeaders(List.of("*"))
 
-# 4. DEPLOYMENT
-# After applying this patch, redeploy your backend on Render.
-# The CORS config is in Java code, not environment variables,
-# so changes require a new build + deploy.
 
-# 5. TESTING
-# After redeploy, test:
+# ============================================================
+# SECTION 8: If you use a SEPARATE WebConfig.java
+# ============================================================
+# If your project has WebConfig.java (implements WebMvcConfigurer)
+# instead of CORS in SecurityConfig, apply the same changes there.
+#
+# Example WebConfig.java:
+#
+# package com.example.config;
+#
+# import org.springframework.context.annotation.Bean;
+# import org.springframework.context.annotation.Configuration;
+# import org.springframework.web.cors.CorsConfiguration;
+# import org.springframework.web.cors.CorsConfigurationSource;
+# import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+# import org.springframework.web.servlet.config.annotation.CorsRegistry;
+# import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+# import java.util.Arrays;
+# import java.util.List;
+#
+# @Configuration
+# public class WebConfig implements WebMvcConfigurer {
+#
+#     @Override
+#     public void addCorsMappings(CorsRegistry registry) {
+#         registry.addMapping("/**")
+#             .allowedOriginPatterns("https://*.vercel.app")
+#             .allowedOrigins("http://localhost:5173", "http://localhost:3000")
+#             .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+#             .allowedHeaders("*")
+#             .exposedHeaders("Authorization", "Content-Type")
+#             .allowCredentials(true)
+#             .maxAge(3600L);
+#     }
+#
+#     @Bean
+#     public CorsConfigurationSource corsConfigurationSource() {
+#         CorsConfiguration configuration = new CorsConfiguration();
+#         configuration.setAllowedOriginPatterns(List.of("https://*.vercel.app"));
+#         configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:3000"));
+#         configuration.setAllowCredentials(true);
+#         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+#         configuration.setAllowedHeaders(List.of("*"));
+#         configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+#         configuration.setMaxAge(3600L);
+#         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+#         source.registerCorsConfiguration("/**", configuration);
+#         return source;
+#     }
+# }
+
+
+# ============================================================
+# VERIFY AFTER APPLYING
+# ============================================================
+# After applying, redeploy your backend on Render.
+#
+# Test from terminal:
 #   curl -v -X OPTIONS \
 #     -H "Origin: https://camera-rental-frontend.vercel.app" \
 #     -H "Access-Control-Request-Method: GET" \
+#     -H "Access-Control-Request-Headers: Authorization,Content-Type" \
 #     https://camera-rental-backend-2hz8.onrender.com/api/cameras
 #
-# Expected: 200 OK with headers:
-#   Access-Control-Allow-Origin: https://camera-rental-frontend.vercel.app
-#   Access-Control-Allow-Credentials: true
-#   Access-Control-Allow-Methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
+# Expected response:
+#   HTTP/2 200
+#   access-control-allow-origin: https://camera-rental-frontend.vercel.app
+#   access-control-allow-credentials: true
+#   access-control-allow-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
+#   access-control-allow-headers: *
+#   access-control-max-age: 3600
