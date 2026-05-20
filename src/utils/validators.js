@@ -38,3 +38,14 @@ export const validateFullName = (fullName) => {
   }
   return null;
 };
+
+export const validatePhone = (phone) => {
+  if (!phone || !phone.trim()) {
+    return "Số điện thoại là bắt buộc";
+  }
+  const digitsOnly = phone.replace(/\D/g, '');
+  if (digitsOnly.length < 9 || digitsOnly.length > 11) {
+    return "Số điện thoại phải có 9-11 chữ số";
+  }
+  return null;
+};

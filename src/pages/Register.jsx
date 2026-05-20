@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { FiUser, FiMail, FiLock, FiCamera } from 'react-icons/fi';
+import { FiUser, FiMail, FiLock, FiCamera, FiPhone } from 'react-icons/fi';
 import ThemeToggle from '../components/ui/ThemeToggle.jsx';
 import Button from '../components/ui/Button.jsx';
 import InputField from '../components/ui/InputField.jsx';
 import { showError, showSuccess } from '../components/ui/ToastNotification.jsx';
 import { ROUTES } from '../constants/routes.js';
 import { register } from '../services/authService.js';
-import { validateEmail, validatePassword, validateConfirmPassword, validateFullName } from '../utils/validators.js';
+import { validateEmail, validatePassword, validateConfirmPassword, validateFullName, validatePhone } from '../utils/validators.js';
 import { notifyNewUser } from '../services/telegramService.js';
 
 function Register() {
@@ -15,26 +15,32 @@ function Register() {
   const [form, setForm] = useState({
     fullName: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: ''
   });
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
-  const validate = () => {
+  const validate = (values = form) => {
     const next = {};
-    
-    const nameError = validateFullName(form.fullName);
+
+    const nameError = validateFullName(values.fullName);
     if (nameError) next.fullName = nameError;
-    
-    const emailError = validateEmail(form.email);
+
+    const emailError = validateEmail(values.email);
     if (emailError) next.email = emailError;
-    
-    const passwordError = validatePassword(form.password);
+
+    const phoneError = validatePhone(values.phone);
+    if (phoneError) next.phone = phoneError;
+
+    const passwordError = validatePassword(values.password);
     if (passwordError) next.password = passwordError;
-    
-    const confirmError = validateConfirmPassword(form.password, form.confirmPassword);
+
+    const confirmError = validateConfirmPassword(values.password, values.confirmPassword);
     if (confirmError) next.confirmPassword = confirmError;
-    
+
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -47,17 +53,37 @@ function Register() {
     }
   };
 
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+  };
+
+  const handlePhoneChange = (e) => {
+    const raw = e.target.value.replace(/[^\d]/g, '');
+    setForm(prev => ({ ...prev, phone: raw }));
+    if (errors.phone) {
+      setErrors(prev => ({ ...prev, phone: null }));
+    }
+  };
+
+  const isFormValid = () => {
+    const formOk = validate();
+    return formOk && agreedToTerms;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
+    if (!agreedToTerms) {
+      showError('Vui lòng đồng ý với Điều khoản sử dụng và Chính sách bảo mật.');
+      return;
+    }
 
     try {
-      await register(form.fullName, form.email, form.password);
+      await register(form.fullName, form.email, form.password, form.phone);
 
-      // Đăng ký thành công - KHÔNG tự đăng nhập
       showSuccess('Đăng ký thành công! Vui lòng đăng nhập.');
 
-      // Gửi Telegram notification — fail-safe, không block navigation
       notifyNewUser({
         fullname: form.fullName,
         email: form.email,
@@ -65,7 +91,6 @@ function Register() {
         createdAt: new Date().toISOString()
       });
 
-      // Chuyển sang trang đăng nhập với message
       navigate(`${ROUTES.LOGIN}?registered=true`, { replace: true });
     } catch (err) {
       const message = err.response?.data?.message || 'Không thể đăng ký. Vui lòng thử lại.';
@@ -102,8 +127,9 @@ function Register() {
               name="fullName"
               value={form.fullName}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="Nhập tên của bạn"
-              error={errors.fullName}
+              error={touched.fullName ? errors.fullName : null}
               icon={FiUser}
               required
               autoComplete="name"
@@ -115,11 +141,26 @@ function Register() {
               type="email"
               value={form.email}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="email@example.com"
-              error={errors.email}
+              error={touched.email ? errors.email : null}
               icon={FiMail}
               required
               autoComplete="email"
+            />
+
+            <InputField
+              label="Số điện thoại"
+              name="phone"
+              type="tel"
+              value={form.phone}
+              onChange={handlePhoneChange}
+              onBlur={handleBlur}
+              placeholder="0xxxxxxxxx (9-11 chữ số)"
+              error={touched.phone ? errors.phone : null}
+              icon={FiPhone}
+              required
+              autoComplete="tel"
             />
 
             <InputField
@@ -128,8 +169,9 @@ function Register() {
               type="password"
               value={form.password}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="Ít nhất 6 ký tự"
-              error={errors.password}
+              error={touched.password ? errors.password : null}
               icon={FiLock}
               required
               autoComplete="new-password"
@@ -141,17 +183,40 @@ function Register() {
               type="password"
               value={form.confirmPassword}
               onChange={handleChange}
+              onBlur={handleBlur}
               placeholder="Nhập lại mật khẩu"
-              error={errors.confirmPassword}
+              error={touched.confirmPassword ? errors.confirmPassword : null}
               icon={FiLock}
               required
               autoComplete="new-password"
             />
 
+            {/* Terms checkbox */}
+            <div className="flex items-start gap-2.5">
+              <input
+                id="terms"
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-600 bg-slate-700 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 cursor-pointer"
+              />
+              <label htmlFor="terms" className="text-xs leading-relaxed cursor-pointer" style={{ color: 'var(--text-muted)' }}>
+                Tôi đồng ý với{' '}
+                <span className="font-medium cursor-pointer hover:underline" style={{ color: 'var(--primary)' }}>
+                  Điều khoản sử dụng
+                </span>{' '}
+                và{' '}
+                <span className="font-medium cursor-pointer hover:underline" style={{ color: 'var(--primary)' }}>
+                  Chính sách bảo mật
+                </span>
+              </label>
+            </div>
+
             <Button
               type="submit"
               size="lg"
               className="w-full"
+              disabled={!agreedToTerms}
             >
               Tạo tài khoản
             </Button>
