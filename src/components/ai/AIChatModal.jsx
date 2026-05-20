@@ -67,7 +67,6 @@ function AIChatModal({ isOpen, onClose }) {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[10000] flex items-center justify-center p-4"
         style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
-        onClick={(e) => e.target === e.currentTarget && onClose()}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 10 }}

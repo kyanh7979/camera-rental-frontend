@@ -159,8 +159,10 @@ function FloatingAIButton({ onClick }) {
 
     // Click handler
     const handleClick = (e) => {
+      // Only trigger if user intentionally tapped (not dragged)
       if (hasMoved.current) {
         e.stopPropagation();
+        e.preventDefault();
         return;
       }
       button.classList.add('clicked');
@@ -187,19 +189,15 @@ function FloatingAIButton({ onClick }) {
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [onClick]);
+  }, []);
 
   return (
     <div
       ref={buttonRef}
       className="chat-launcher"
       style={{
-        position: 'fixed',
         right: -16,
         bottom: -100,
-        zIndex: 99999,
-        cursor: 'grab',
-        touchAction: 'none',
       }}
     >
       <button
