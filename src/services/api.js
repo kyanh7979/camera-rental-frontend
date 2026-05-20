@@ -1,6 +1,13 @@
 import axios from "axios";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+// Ensure /api suffix is always present regardless of how VITE_API_URL is configured
+const API_BASE = (() => {
+  const env = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+  // Strip trailing slash, then append /api
+  const base = env.replace(/\/$/, "");
+  // Avoid double /api
+  return base.endsWith("/api") ? base : `${base}/api`;
+})();
 
 console.info("[API] Base URL:", API_BASE);
 
@@ -10,6 +17,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 // Lấy token từ zustand persist store
@@ -64,6 +72,7 @@ api.interceptors.response.use(
 const uploadApi = axios.create({
   baseURL: API_BASE,
   timeout: 60000, // 60 seconds for large files
+  withCredentials: true,
 });
 
 // Token interceptor for upload
