@@ -22,7 +22,7 @@ export const resetPassword = async (token, newPassword) => {
 };
 
 export const resetPasswordNoAuth = async (token, newPassword) => {
-  const response = await axios.post("http://localhost:8080/api/auth/reset-password", { token, newPassword });
+  const response = await api.post("/auth/reset-password", { token, newPassword });
   return response.data;
 };
 

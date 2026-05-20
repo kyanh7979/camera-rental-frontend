@@ -2,7 +2,7 @@
 // IMAGE UTILITIES - Safe Image Handling
 // ================================================
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 // Default placeholder SVG
 export const DEFAULT_PLACEHOLDER = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect fill='%231e293b' width='400' height='400'/%3E%3Ccircle cx='200' cy='180' r='80' fill='%23374151'/%3E%3Ccircle cx='200' cy='180' r='50' fill='%231e293b'/%3E%3Ctext x='200' y='320' text-anchor='middle' fill='%239ca3af' font-size='14'%3ENo Image%3C/text%3E%3C/svg%3E`;

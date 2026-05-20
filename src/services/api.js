@@ -1,7 +1,11 @@
 import axios from "axios";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+
+console.info("[API] Base URL:", API_BASE);
+
 const api = axios.create({
-  baseURL: "API_URL",
+  baseURL: API_BASE,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -58,7 +62,7 @@ api.interceptors.response.use(
 // This separate instance does NOT set default Content-Type
 
 const uploadApi = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: API_BASE,
   timeout: 60000, // 60 seconds for large files
 });
 

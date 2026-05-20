@@ -24,7 +24,7 @@ import { ROUTES } from '../constants/routes.js';
 import useAuth from '../hooks/useAuth.js';
 
 const CAMERA_ENDPOINT = import.meta.env.VITE_CAMERA_ENDPOINT || '/cameras';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 const normalizeId = (camera) => String(camera?.id ?? camera?._id ?? camera?.cameraId ?? '');
 const normalizePrice = (camera) => camera?.pricePerDay ?? camera?.dailyPrice ?? camera?.price ?? 0;
