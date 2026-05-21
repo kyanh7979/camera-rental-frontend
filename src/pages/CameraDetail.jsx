@@ -58,12 +58,6 @@ const normalizeSampleImages = (camera) => {
   return [];
 };
 
-const DEMO_REVIEWS = [
-  { id: 1, userName: 'Minh Hoàng', userAvatar: 'https://i.pravatar.cc/100?img=1', rating: 5, comment: 'Máy ảnh tuyệt vời! Chất lượng hình ảnh siêu nét, lấy nét nhanh và chính xác. Đã thuê 3 lần và luôn hài lòng.', createdAt: '2024-03-15' },
-  { id: 2, userName: 'Thu Hà', userAvatar: 'https://i.pravatar.cc/100?img=5', rating: 5, comment: 'Trải nghiệm thuê máy ảnh tốt nhất! Máy mới, sạch sẽ, đầy đủ phụ kiện. Giao hàng nhanh chóng.', createdAt: '2024-03-10' },
-  { id: 3, userName: 'Đức Anh', userAvatar: 'https://i.pravatar.cc/100?img=3', rating: 4, comment: 'Máy hoạt động tốt, pin trâu. Giá thuê hợp lý. Sẽ quay lại!', createdAt: '2024-03-05' }
-];
-
 const SPECS_ICONS = {
   'megapixels': <FiGrid className="w-4 h-4" />,
   'sensor': <FiCpu className="w-4 h-4" />,
@@ -152,14 +146,15 @@ function CameraDetail() {
         const avg = data.content.reduce((sum, r) => sum + r.rating, 0) / data.content.length;
         setAverageRating(avg);
       } else {
-        setReviews(DEMO_REVIEWS);
-        setTotalReviews(DEMO_REVIEWS.length);
-        setAverageRating(4.5);
+        setReviews([]);
+        setTotalReviews(0);
+        setAverageRating(0);
       }
     } catch (error) {
-      setReviews(DEMO_REVIEWS);
-      setTotalReviews(DEMO_REVIEWS.length);
-      setAverageRating(4.5);
+      console.error('Error loading reviews:', error);
+      setReviews([]);
+      setTotalReviews(0);
+      setAverageRating(0);
     } finally {
       setReviewsLoading(false);
     }
