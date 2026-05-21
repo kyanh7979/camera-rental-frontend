@@ -3,6 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 /**
  * Floating AI Chat Button
  * Premium design with idle glow, hover effects, and periodic wave animation
+ * 
+ * Bug fixes:
+ * - Ensures button always remains visible
+ * - Proper cleanup of timers on unmount
+ * - Safe position loading with fallback defaults
+ * - Mobile touch handling doesn't trigger click after drag
  */
 function FloatingAIButton({ onClick }) {
   const buttonRef = useRef(null);
@@ -10,52 +16,69 @@ function FloatingAIButton({ onClick }) {
   const hasMoved = useRef(false);
   const startPos = useRef({ x: 0, y: 0 });
   const currentPos = useRef({ x: 0, y: 0 });
+  const waveIntervalRef = useRef(null);
+  const clickTimeoutRef = useRef(null);
   const DRAG_THRESHOLD = 5;
-  const [isWaving, setIsWaving] = useState(false);
 
-  // Wave animation every ~5 seconds
+  // Wave animation every ~5 seconds - ONLY decorative, does NOT hide button
   useEffect(() => {
-    const waveInterval = setInterval(() => {
-      if (!isDragging.current && buttonRef.current) {
-        setIsWaving(true);
-        buttonRef.current.classList.add('waving');
+    waveIntervalRef.current = setInterval(() => {
+      if (!isDragging.current && buttonRef.current && !buttonRef.current.hidden) {
+        const btn = buttonRef.current;
+        btn.classList.add('waving');
         
         setTimeout(() => {
-          setIsWaving(false);
-          if (buttonRef.current) {
-            buttonRef.current.classList.remove('waving');
+          if (btn && !btn.hidden) {
+            btn.classList.remove('waving');
           }
         }, 800);
       }
     }, 5000);
 
-    return () => clearInterval(waveInterval);
+    return () => {
+      if (waveIntervalRef.current) {
+        clearInterval(waveIntervalRef.current);
+        waveIntervalRef.current = null;
+      }
+    };
   }, []);
 
   useEffect(() => {
     const button = buttonRef.current;
     if (!button) return;
 
-    // Load saved position
+    // Force visibility - this is the key fix
+    button.style.visibility = 'visible';
+    button.style.opacity = '1';
+    button.style.display = 'block';
+
+    // Load saved position - with safe defaults
     const loadPosition = () => {
       try {
         const stored = localStorage.getItem('chat-launcher-position');
         if (stored) {
           const pos = JSON.parse(stored);
-          return pos;
+          // Validate position values
+          if (typeof pos.x === 'number' && typeof pos.y === 'number' && !isNaN(pos.x) && !isNaN(pos.y)) {
+            return pos;
+          }
         }
-      } catch {}
-      return { x: -16, y: -100 };
+      } catch {
+        // Fall through to default
+      }
+      return { x: -16, y: -100 }; // Safe default - bottom-right corner
     };
 
     const savePosition = (x, y) => {
       try {
         const maxX = window.innerWidth - button.offsetWidth;
         const maxY = window.innerHeight - button.offsetHeight;
-        const clampedX = Math.max(0, Math.min(x, maxX));
-        const clampedY = Math.max(0, Math.min(y, maxY));
+        const clampedX = Math.max(-200, Math.min(x, maxX));
+        const clampedY = Math.max(-200, Math.min(y, maxY));
         localStorage.setItem('chat-launcher-position', JSON.stringify({ x: clampedX, y: clampedY }));
-      } catch {}
+      } catch {
+        // Ignore save errors
+      }
     };
 
     const position = loadPosition();
@@ -68,11 +91,20 @@ function FloatingAIButton({ onClick }) {
     } else {
       button.style.right = `${Math.abs(position.x)}px`;
       button.style.bottom = `${Math.abs(position.y)}px`;
+      button.style.left = 'auto';
+      button.style.top = 'auto';
     }
 
     // Mouse events
     const handleMouseDown = (e) => {
       if (e.button !== 0) return;
+      
+      // Clear any pending click
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = null;
+      }
+      
       isDragging.current = true;
       hasMoved.current = false;
       button.style.right = 'auto';
@@ -116,6 +148,12 @@ function FloatingAIButton({ onClick }) {
       if (e.touches.length !== 1) return;
       const touch = e.touches[0];
 
+      // Clear any pending click
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = null;
+      }
+      
       isDragging.current = true;
       hasMoved.current = false;
       button.style.right = 'auto';
@@ -157,7 +195,7 @@ function FloatingAIButton({ onClick }) {
       hasMoved.current = false;
     };
 
-    // Click handler
+    // Click handler - only triggers if user did NOT drag
     const handleClick = (e) => {
       // Only trigger if user intentionally tapped (not dragged)
       if (hasMoved.current) {
@@ -165,8 +203,23 @@ function FloatingAIButton({ onClick }) {
         e.preventDefault();
         return;
       }
+      
+      // Add clicked animation
       button.classList.add('clicked');
-      setTimeout(() => button.classList.remove('clicked'), 600);
+      
+      // Clear any existing timeout
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+      }
+      
+      // Remove clicked class after animation
+      clickTimeoutRef.current = setTimeout(() => {
+        if (button && !button.hidden) {
+          button.classList.remove('clicked');
+        }
+        clickTimeoutRef.current = null;
+      }, 600);
+      
       onClick?.();
     };
 
@@ -180,6 +233,16 @@ function FloatingAIButton({ onClick }) {
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('touchend', handleTouchEnd);
 
+    // Re-ensure visibility on visibility change (tab focus, etc.)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        button.style.visibility = 'visible';
+        button.style.opacity = '1';
+        button.style.display = 'block';
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       button.removeEventListener('mousedown', handleMouseDown);
       button.removeEventListener('touchstart', handleTouchStart);
@@ -188,6 +251,17 @@ function FloatingAIButton({ onClick }) {
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      
+      // Clean up timers
+      if (waveIntervalRef.current) {
+        clearInterval(waveIntervalRef.current);
+        waveIntervalRef.current = null;
+      }
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = null;
+      }
     };
   }, []);
 
@@ -198,6 +272,9 @@ function FloatingAIButton({ onClick }) {
       style={{
         right: -16,
         bottom: -100,
+        visibility: 'visible',
+        opacity: 1,
+        display: 'block',
       }}
     >
       <button
