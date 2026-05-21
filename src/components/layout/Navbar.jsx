@@ -405,32 +405,35 @@ function Navbar() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
-            {/* Backdrop */}
+            {/* Backdrop - subtle overlay, not affecting menu readability */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 bg-black/50 md:hidden"
+              className="fixed inset-0 z-40 md:hidden"
+              style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}
               onClick={() => setMobileMenuOpen(false)}
             />
             
-            {/* Mobile Menu Panel */}
+            {/* Mobile Menu Panel - SOLID background, no transparency */}
             <motion.div
               ref={mobileMenuRef}
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 z-50 h-full w-72 max-w-[85vw] shadow-2xl md:hidden"
+              className="fixed right-0 top-0 z-50 h-full w-80 max-w-[90vw] shadow-2xl md:hidden"
               style={{ 
-                backgroundColor: 'var(--bg-card)',
-                borderLeft: '1px solid var(--border-color)'
+                backgroundColor: 'var(--bg-card)'
               }}
             >
               {/* Header */}
               <div 
-                className="flex items-center justify-between px-4 py-4 border-b"
-                style={{ borderColor: 'var(--border-color)' }}
+                className="flex items-center justify-between px-4 py-4"
+                style={{ 
+                  borderBottom: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--bg-card)'
+                }}
               >
                 <span className="font-bold" style={{ color: 'var(--text-primary)' }}>
                   Menu
@@ -439,7 +442,11 @@ function Navbar() {
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex h-8 w-8 items-center justify-center rounded-lg"
-                  style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}
+                  style={{ 
+                    backgroundColor: 'var(--bg-secondary)', 
+                    color: 'var(--text-secondary)',
+                    border: '1px solid var(--border-color)'
+                  }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <FiX />
@@ -447,14 +454,23 @@ function Navbar() {
               </div>
 
               {/* Menu Content */}
-              <div className="flex flex-col gap-1 p-3 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 65px)' }}>
+              <div 
+                className="flex flex-col gap-1 p-3 overflow-y-auto"
+                style={{ 
+                  maxHeight: 'calc(100vh - 65px)',
+                  backgroundColor: 'var(--bg-card)'
+                }}
+              >
                 {/* Auth Section */}
                 {isAuthenticated ? (
                   <>
                     {/* User Info */}
                     <div 
                       className="flex items-center gap-3 rounded-xl p-3 mb-2"
-                      style={{ backgroundColor: 'var(--bg-secondary)' }}
+                      style={{ 
+                        backgroundColor: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-color)'
+                      }}
                     >
                       <div 
                         className="flex h-10 w-10 items-center justify-center rounded-full"
@@ -492,7 +508,7 @@ function Navbar() {
                       onClick={() => { navigate(ROUTES.WISHLIST); setMobileMenuOpen(false); }}
                     />
 
-                    <div className="my-2 border-t" style={{ borderColor: 'var(--border-color)' }} />
+                    <div className="my-2" style={{ borderTop: '1px solid var(--border-color)' }} />
 
                     <MobileMenuItem 
                       icon={<FiLogOut />} 
@@ -503,17 +519,17 @@ function Navbar() {
                   </>
                 ) : (
                   <>
-                    <p className="px-3 py-2 text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
+                    <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
                       Tài khoản
                     </p>
                     <motion.button
                       type="button"
                       onClick={() => { navigate(ROUTES.LOGIN); setMobileMenuOpen(false); }}
-                      className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors"
+                      className="flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-semibold transition-colors w-full"
                       style={{ 
-                        background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(6, 182, 212, 0.08))',
-                        border: '1px solid rgba(6, 182, 212, 0.25)',
-                        color: 'var(--primary)'
+                        backgroundColor: 'var(--primary)',
+                        color: 'white',
+                        boxShadow: '0 2px 8px rgba(6, 182, 212, 0.3)'
                       }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -522,23 +538,23 @@ function Navbar() {
                     <motion.button
                       type="button"
                       onClick={() => { navigate(ROUTES.REGISTER); setMobileMenuOpen(false); }}
-                      className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors"
+                      className="flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-semibold transition-colors w-full"
                       style={{ 
-                        background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(6, 182, 212, 0.08))',
-                        border: '1px solid rgba(6, 182, 212, 0.25)',
-                        color: 'var(--primary)'
+                        backgroundColor: 'transparent',
+                        color: 'var(--primary)',
+                        border: '2px solid var(--primary)'
                       }}
                       whileTap={{ scale: 0.98 }}
                     >
                       Đăng ký
                     </motion.button>
 
-                    <div className="my-2 border-t" style={{ borderColor: 'var(--border-color)' }} />
+                    <div className="my-3" style={{ borderTop: '1px solid var(--border-color)' }} />
                   </>
                 )}
 
                 {/* Navigation */}
-                <p className="px-3 py-2 text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
+                <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
                   Khám phá
                 </p>
                 <MobileMenuItem 
@@ -553,7 +569,7 @@ function Navbar() {
                 />
 
                 {/* Brands */}
-                <p className="px-3 py-2 text-xs font-medium mt-2" style={{ color: 'var(--text-muted)' }}>
+                <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wide mt-2" style={{ color: 'var(--text-muted)' }}>
                   Thương hiệu
                 </p>
                 {CAMERA_BRANDS.map((b) => (
