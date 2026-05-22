@@ -141,14 +141,16 @@ function CameraCard({ camera, index }) {
       whileHover={{ y: -8, scale: 1.02 }}
       onClick={() => navigate(ROUTES.CAMERA_DETAIL.replace(':id', cameraId))}
       className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-2xl"
-      style={{ 
+      style={{
         backgroundColor: 'var(--bg-card)',
         borderColor: 'var(--border-color)',
-        boxShadow: 'var(--shadow-lg)'
+        boxShadow: 'var(--shadow-lg)',
+        lineHeight: 0,
       }}
     >
       {/* IMAGE */}
-      <div className="relative h-56 overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900">
+      <div className="relative h-56 overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900"
+           style={{ isolation: 'isolate', lineHeight: 0 }}>
         {!imageUrl || imgError ? (
           <div className="flex h-full items-center justify-center">
             <FiCamera className="w-16 h-16 opacity-30" style={{ color: 'var(--text-muted)' }} />
@@ -157,7 +159,8 @@ function CameraCard({ camera, index }) {
           <img
             src={imageUrl}
             alt={name}
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+            style={{ display: 'block', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
             onError={() => setImgError(true)}
           />
         )}
@@ -258,7 +261,7 @@ function CameraCard({ camera, index }) {
       </div>
 
       {/* CONTENT */}
-      <div className="flex flex-1 flex-col gap-2.5 p-4">
+      <div className="flex flex-1 flex-col gap-2.5 p-4" style={{ lineHeight: 'normal' }}>
         {/* Brand Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
