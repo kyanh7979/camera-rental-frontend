@@ -437,6 +437,9 @@ html {
 /* ============================================
    SOCIAL ICON STYLES
    ============================================ */
+/* ==========
+   SOCIAL ICON STYLES (Original)
+   ============================================ */
 .social-icon {
   display: flex;
   align-items: center;
@@ -457,37 +460,51 @@ html {
 }
 
 /* ==========
-   ENHANCED FOOTER SOCIAL ICONS
+   ENHANCED FOOTER SOCIAL ICONS (Premium Minimalist)
    ============================================ */
-.social-icon-lg {
+.social-footer-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 2.5rem;
-  width: 2.5rem;
-  border-radius: 0.75rem;
+  height: 2.25rem;
+  width: 2.25rem;
+  border-radius: 0.625rem;
   border: 1px solid var(--border-color);
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-primary);
   color: var(--text-secondary);
   transition: all 0.2s ease;
   cursor: pointer;
   text-decoration: none;
+  flex-shrink: 0;
 }
 
-.social-icon-lg:hover {
-  transform: translateY(-2px);
+.social-footer-btn:hover {
+  transform: scale(1.05);
   border-color: var(--primary);
   color: var(--primary);
-  background-color: var(--bg-primary);
-  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.2);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
 }
 
-/* Zalo button - brand color */
-.zalo-btn:hover {
+.zalo-footer-btn {
+  width: auto;
+  padding: 0 0.625rem;
+}
+
+.zalo-footer-btn:hover {
   border-color: #0068ff;
   color: #0068ff;
   background-color: rgba(0, 104, 255, 0.08);
-  box-shadow: 0 6px 16px rgba(0, 104, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 104, 255, 0.15);
+}
+
+/* Contact link row */
+.contact-link {
+  color: var(--text-muted);
+}
+
+.contact-link:hover {
+  background-color: rgba(6, 182, 212, 0.06);
+  color: var(--text-secondary);
 }
 
 /* ============================================
