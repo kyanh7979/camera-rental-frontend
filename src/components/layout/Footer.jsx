@@ -1,4 +1,4 @@
-import { FiSend, FiPhone, FiMail, FiCamera, FiMessageCircle, FiZap } from 'react-icons/fi';
+import { FiSend, FiPhone, FiMail, FiCamera, FiMessageCircle, FiZap, FiHome, FiShield, FiTruck, FiRefreshCw, FiShoppingBag, FiUser } from 'react-icons/fi';
 import { FaFacebookF, FaInstagram } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes.js';
@@ -83,7 +83,7 @@ function Footer() {
             </div>
           </div>
 
-          {/* Column 2: Quick Links */}
+          {/* Column 2: Quick Links - Matching Card Style */}
           <div>
             <h4
               className="font-semibold mb-4 text-sm"
@@ -91,30 +91,44 @@ function Footer() {
             >
               Liên kết nhanh
             </h4>
-            <ul className="space-y-2 text-sm" style={{ color: 'var(--text-muted)' }}>
-              {[
-                { label: 'Trang chủ', route: ROUTES.HOME },
-                { label: 'Máy ảnh', route: ROUTES.CAMERAS },
-                { label: 'Bảo hành & hỗ trợ', route: ROUTES.WARRANTY_POLICY },
-                { label: 'Giao hàng', route: ROUTES.SHIPPING_POLICY },
-                { label: 'Giao nhận linh hoạt', route: ROUTES.FLEXIBLE_DELIVERY },
-                { label: 'Giỏ hàng', route: ROUTES.CART },
-                { label: 'Tài khoản', route: ROUTES.PROFILE },
-              ].map((item, i) => (
-                <li key={i}>
-                  <button
-                    onClick={() => navigate(item.route)}
-                    className="flex items-center gap-1.5 group transition-all duration-200 hover:-translate-x-0.5"
-                  >
-                    <span
-                      className="w-1 h-1 rounded-full flex-shrink-0 transition-all duration-200"
-                      style={{ backgroundColor: 'var(--border-color)' }}
-                    />
-                    <span className="group-hover:text-cyan-400 transition-colors">{item.label}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+
+            {/* Quick Links Card */}
+            <div
+              className="rounded-2xl p-4 transition-all duration-300 hover:-translate-y-0.5"
+              style={{
+                backgroundColor: 'rgba(var(--bg-primary-rgb, 255, 255, 255), 0.6)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                border: '1px solid rgba(var(--border-color-rgb, 200, 200, 200), 0.2)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(6, 182, 212, 0.04)',
+              }}
+            >
+              <ul className="space-y-1">
+                {[
+                  { label: 'Trang chủ', route: ROUTES.HOME, icon: <FiHome size={13} /> },
+                  { label: 'Máy ảnh', route: ROUTES.CAMERAS, icon: <FiCamera size={13} /> },
+                  { label: 'Bảo hành & hỗ trợ', route: ROUTES.WARRANTY_POLICY, icon: <FiShield size={13} /> },
+                  { label: 'Giao hàng', route: ROUTES.SHIPPING_POLICY, icon: <FiTruck size={13} /> },
+                  { label: 'Giao nhận linh hoạt', route: ROUTES.FLEXIBLE_DELIVERY, icon: <FiRefreshCw size={13} /> },
+                  { label: 'Giỏ hàng', route: ROUTES.CART, icon: <FiShoppingBag size={13} /> },
+                  { label: 'Tài khoản', route: ROUTES.PROFILE, icon: <FiUser size={13} /> },
+                ].map((item, i) => (
+                  <li key={i}>
+                    <button
+                      onClick={() => navigate(item.route)}
+                      className="w-full flex items-center gap-2.5 py-2 px-2 rounded-lg text-sm transition-all duration-200 hover:bg-cyan-500/8 group"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      <span className="flex items-center justify-center w-6 h-6 rounded-md flex-shrink-0 transition-colors duration-200" style={{ backgroundColor: 'rgba(6, 182, 212, 0.08)' }}>
+                        <span className="text-cyan-400/70 group-hover:text-cyan-400 transition-colors">{item.icon}</span>
+                      </span>
+                      <span className="group-hover:text-cyan-400 transition-colors text-left flex-1">{item.label}</span>
+                      <span className="opacity-0 group-hover:opacity-60 transition-opacity text-[10px]">→</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {/* Column 3: Contact & Social - Glassmorphism Card */}
