@@ -38,11 +38,11 @@ const BRAND_COLORS = {
   fujifilm: { bg: 'from-orange-500 to-red-600', text: 'text-orange-500' },
   canon: { bg: 'from-red-500 to-orange-600', text: 'text-red-500' },
   nikon: { bg: 'from-yellow-500 to-orange-500', text: 'text-yellow-600' },
-  sony: { bg: 'from-black to-gray-700', text: 'text-gray-800' },
+  sony: { bg: 'from-gray-500 to-gray-700', text: 'text-gray-600' },
   panasonic: { bg: 'from-red-600 to-red-800', text: 'text-red-600' },
   gopro: { bg: 'from-yellow-400 to-orange-500', text: 'text-orange-500' },
   dji: { bg: 'from-orange-500 to-red-500', text: 'text-orange-600' },
-  blackmagic: { bg: 'from-gray-700 to-black', text: 'text-gray-600' },
+  blackmagic: { bg: 'from-gray-500 to-gray-700', text: 'text-gray-600' },
   insta360: { bg: 'from-cyan-500 to-blue-600', text: 'text-cyan-600' },
 };
 
