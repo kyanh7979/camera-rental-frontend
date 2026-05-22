@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { FiCamera, FiShoppingBag, FiUsers, FiDollarSign, FiAlertCircle, FiRefreshCw } from "react-icons/fi";
 import dashboardService from "../../services/dashboardService.js";
 import { formatCurrency } from "../../utils/formatCurrency.js";
+import { getStatusDisplay } from "../../constants/orderStatus.js";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -57,17 +58,12 @@ export default function Dashboard() {
   };
 
   const getStatusBadge = (status) => {
-    const statusMap = {
-      PENDING: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', label: 'Chờ xác nhận' },
-      CONFIRMED: { bg: 'bg-blue-500/20', text: 'text-blue-400', label: 'Đã xác nhận' },
-      PAID: { bg: 'bg-blue-500/20', text: 'text-blue-400', label: 'Đã thanh toán' },
-      RENTING: { bg: 'bg-purple-500/20', text: 'text-purple-400', label: 'Đang thuê' },
-      RETURNED: { bg: 'bg-cyan-500/20', text: 'text-cyan-400', label: 'Đã trả thiết bị' },
-      COMPLETED: { bg: 'bg-green-500/20', text: 'text-green-400', label: 'Hoàn thành' },
-      CANCELLED: { bg: 'bg-red-500/20', text: 'text-red-400', label: 'Đã hủy' },
-    };
-    const style = statusMap[status?.toUpperCase()] || { bg: 'bg-slate-500/20', text: 'text-slate-400', label: status || 'Không rõ' };
-    return <span className={`px-2 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}>{style.label}</span>;
+    const display = getStatusDisplay(status);
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${display.bg} ${display.text}`}>
+        {display.label}
+      </span>
+    );
   };
 
   if (loading) {

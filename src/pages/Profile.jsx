@@ -3,24 +3,11 @@ import useAuth from '../hooks/useAuth.js';
 import orderService from '../services/orderService.js';
 import { formatCurrency } from '../utils/formatCurrency.js';
 import { formatDate, formatDateTime } from '../utils/dateFormat.js';
-
-const ORDER_STATUS_CONFIG = {
-  PENDING: { label: 'Chờ xác nhận', bg: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' },
-  CONFIRMED: { label: 'Đã xác nhận', bg: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' },
-  PAID: { label: 'Đã thanh toán', bg: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' },
-  RENTING: { label: 'Đang thuê', bg: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6' },
-  RETURNED: { label: 'Đã trả thiết bị', bg: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4' },
-  COMPLETED: { label: 'Hoàn thành', bg: 'rgba(16, 185, 129, 0.15)', color: '#10b981' },
-  CANCELLED: { label: 'Đã hủy', bg: 'rgba(239, 68, 68, 0.15)', color: '#ef4444' },
-};
-
-const PAYMENT_STATUS_CONFIG = {
-  PENDING: { label: 'Chưa thanh toán', bg: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' },
-  PROCESSING: { label: 'Đang xử lý', bg: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' },
-  COMPLETED: { label: 'Đã thanh toán', bg: 'rgba(16, 185, 129, 0.15)', color: '#10b981' },
-  FAILED: { label: 'Thanh toán lỗi', bg: 'rgba(239, 68, 68, 0.15)', color: '#ef4444' },
-  REFUNDED: { label: 'Đã hoàn tiền', bg: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6' },
-};
+import {
+  getStatusDisplayProfile,
+  getStatusDisplay,
+  PAYMENT_STATUS_LABELS,
+} from '../constants/orderStatus.js';
 
 function Profile() {
   const { user } = useAuth();
@@ -62,7 +49,7 @@ function Profile() {
   };
 
   const getOrderStatusStyle = (status) => {
-    const config = ORDER_STATUS_CONFIG[status] || { label: status, bg: 'rgba(100, 116, 139, 0.15)', color: '#64748b' };
+    const config = getStatusDisplayProfile(status);
     return {
       backgroundColor: config.bg,
       color: config.color,
@@ -71,7 +58,7 @@ function Profile() {
   };
 
   const getPaymentStatusStyle = (status) => {
-    const config = PAYMENT_STATUS_CONFIG[status] || { label: status, bg: 'rgba(100, 116, 139, 0.15)', color: '#64748b' };
+    const config = PAYMENT_STATUS_LABELS[status] || { label: status, bg: 'rgba(100, 116, 139, 0.15)', color: '#64748b' };
     return {
       backgroundColor: config.bg,
       color: config.color,
@@ -186,7 +173,7 @@ function Profile() {
                         className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
                         style={getOrderStatusStyle(order.status)}
                       >
-                        {ORDER_STATUS_CONFIG[order.status]?.label || order.status}
+                        {getStatusDisplayProfile(order.status)?.label || order.status}
                       </span>
                     </div>
                   </div>
@@ -217,7 +204,7 @@ function Profile() {
                         className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
                         style={getPaymentStatusStyle(order.paymentStatus)}
                       >
-                        {PAYMENT_STATUS_CONFIG[order.paymentStatus]?.label || order.paymentStatus || 'Chưa xác định'}
+                        {PAYMENT_STATUS_LABELS[order.paymentStatus]?.label || order.paymentStatus || 'Chưa xác định'}
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -293,7 +280,7 @@ function Profile() {
                   className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
                   style={getOrderStatusStyle(selectedOrder.status)}
                 >
-                  {ORDER_STATUS_CONFIG[selectedOrder.status]?.label || selectedOrder.status}
+                  {getStatusDisplayProfile(selectedOrder.status)?.label || selectedOrder.status}
                 </span>
               </div>
 
@@ -303,7 +290,7 @@ function Profile() {
                   className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
                   style={getPaymentStatusStyle(selectedOrder.paymentStatus)}
                 >
-                  {PAYMENT_STATUS_CONFIG[selectedOrder.paymentStatus]?.label || selectedOrder.paymentStatus || 'Chưa xác định'}
+                  {PAYMENT_STATUS_LABELS[selectedOrder.paymentStatus]?.label || selectedOrder.paymentStatus || 'Chưa xác định'}
                 </span>
               </div>
 
