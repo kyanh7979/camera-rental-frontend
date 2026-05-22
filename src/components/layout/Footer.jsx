@@ -302,18 +302,67 @@ function Footer() {
           </div>
         </div>
 
-        {/* Bottom Copyright */}
-        <div
-          className="mt-8 pt-6 border-t text-center"
-          style={{ borderColor: 'var(--border-color)' }}
-        >
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            © {new Date().getFullYear()}{' '}
-            <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>LensRent</span>
-            {' · '}Premium Camera Rental Experience
-          </p>
+        {/* Premium Bottom Section */}
+        <div className="mt-6">
+
+          {/* Mini Stats */}
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mb-4">
+            {[
+              { icon: <FiCamera size={11} />, text: '50+ Máy ảnh' },
+              { icon: <FiMessageCircle size={11} />, text: '24/7 Hỗ trợ' },
+              { icon: <FiTruck size={11} />, text: 'Giao nhanh' },
+              { icon: <FiRefreshCw size={11} />, text: 'Thuê linh hoạt' },
+            ].map((stat, i) => (
+              <div key={i} className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                <span style={{ color: 'var(--primary)' }}>{stat.icon}</span>
+                <span>{stat.text}</span>
+                {i < 3 && (
+                  <span className="w-1 h-1 rounded-full ml-1" style={{ backgroundColor: 'var(--border-color)', opacity: 0.5 }} />
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Premium Gradient Divider */}
+          <div className="relative h-px mb-4">
+            <div
+              className="absolute inset-0"
+              style={{
+                background: 'linear-gradient(90deg, transparent 0%, rgba(6, 182, 212, 0.25) 30%, rgba(6, 182, 212, 0.25) 70%, transparent 100%)'
+              }}
+            />
+            {/* Center glow dot */}
+            <div
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
+              style={{
+                background: 'rgba(6, 182, 212, 0.4)',
+                boxShadow: '0 0 12px 4px rgba(6, 182, 212, 0.15)'
+              }}
+            />
+          </div>
+
+          {/* Copyright */}
+          <div className="text-center space-y-1">
+            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+              © {new Date().getFullYear()}{' '}
+              <span className="font-semibold tracking-wide">LensRent</span>
+              {' · '}Premium Camera Rental Experience
+            </p>
+            <p className="text-[10px] tracking-widest uppercase" style={{ color: 'var(--text-muted)', opacity: 0.6 }}>
+              Trusted by creators & filmmakers
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* Background Glow - Subtle radial gradient */}
+      <div
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at center, rgba(6, 182, 212, 0.04) 0%, transparent 70%)',
+          filter: 'blur(40px)'
+        }}
+      />
     </footer>
   );
 }
