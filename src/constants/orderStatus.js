@@ -28,8 +28,12 @@ export const ACTIVE_STATUSES = ['CONFIRMED', 'PAID', 'RENTING'];
 
 /**
  * Status labels for filter dropdowns.
- * Key = backend enum value (uppercase).
+ * Key = filter key (uppercase).
  * Label = user-facing Vietnamese text.
+ *
+ * Special multi-status filters:
+ * - RETURNED_AND_COMPLETED: shows both RETURNED + COMPLETED orders
+ *   (business: "returned" = "equipment has been returned", which includes completed orders)
  */
 export const STATUS_LABELS = {
   ALL: 'Tất cả',
@@ -37,9 +41,16 @@ export const STATUS_LABELS = {
   CONFIRMED: 'Đã xác nhận',
   PAID: 'Đã thanh toán',
   RENTING: 'Đang thuê',
-  RETURNED: 'Đã trả',
+  RETURNED_AND_COMPLETED: 'Đã trả',
   CANCELLED: 'Đã hủy',
   COMPLETED: 'Hoàn thành',
+};
+
+/**
+ * Tooltip/description for filter options that need clarification.
+ */
+export const STATUS_FILTER_NOTES = {
+  RETURNED_AND_COMPLETED: 'Bao gồm đơn đã trả thiết bị (RETURNED) và đơn đã hoàn thành (COMPLETED)',
 };
 
 /**
@@ -215,4 +226,68 @@ export const isPaidStatus = (status) => {
  */
 export const isActiveStatus = (status) => {
   return ACTIVE_STATUSES.includes(status?.toUpperCase());
+};
+
+/**
+ * All statuses that count as "returned" in the business sense.
+ * Includes both RETURNED (equipment returned, pending completion) and COMPLETED (fully finished).
+ * Used by the "Đã trả" (Returned) filter.
+ */
+export const RETURNED_STATUSES = ['RETURNED', 'COMPLETED'];
+
+/**
+ * Check if a status is "returned" in the business sense.
+ * "Đã trả" = equipment has been returned = RETURNED OR COMPLETED.
+ */
+export const isReturnedStatus = (status) => {
+  return RETURNED_STATUSES.includes(status?.toUpperCase());
+};
+
+/**
+ * Map filter key to the backend status value(s) it represents.
+ *
+ * Single-status filters: returns single string
+ * Multi-status filters (RETURNED_AND_COMPLETED): returns array of strings
+ *
+ * @param {string} filterKey - The filter key from dropdown (e.g., "RETURNED_AND_COMPLETED", "PENDING")
+ * @returns {string | string[]} - Backend status value(s)
+ */
+export const getFilterStatuses = (filterKey) => {
+  const key = filterKey?.toUpperCase();
+
+  switch (key) {
+    case 'ALL':
+      return null; // null means no filter
+    case 'RETURNED_AND_COMPLETED':
+      return ['RETURNED', 'COMPLETED'];
+    default:
+      // Single status filter — map to backend enum
+      return mapFrontendToBackendStatus(filterKey);
+  }
+};
+
+/**
+ * Check if an order's status matches a given filter value.
+ * Handles both single-status and multi-status filters.
+ *
+ * @param {string} orderStatus - The order's current status (from backend)
+ * @param {string} filterKey - The selected filter key
+ * @returns {boolean}
+ */
+export const matchesFilter = (orderStatus, filterKey) => {
+  const key = filterKey?.toUpperCase();
+
+  if (key === 'ALL') {
+    return true;
+  }
+
+  const filterStatuses = getFilterStatuses(filterKey);
+
+  // Multi-status filter (array)
+  if (Array.isArray(filterStatuses)) {
+    return filterStatuses.includes(orderStatus?.toUpperCase());
+  }
+
+  // Single-status filter
+  return orderStatus?.toUpperCase() === filterStatuses;
 };

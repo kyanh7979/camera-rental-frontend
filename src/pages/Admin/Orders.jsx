@@ -6,11 +6,14 @@ import { formatCurrency } from "../../utils/formatCurrency.js";
 import Button from "../../components/ui/Button.jsx";
 import {
   STATUS_LABELS,
+  STATUS_FILTER_NOTES,
   getStatusDisplay,
   mapFrontendToBackendStatus,
   getNextStatuses,
   ORDER_LIFECYCLE,
   getStatusDisplayProfile,
+  matchesFilter,
+  getFilterStatuses,
 } from "../../constants/orderStatus.js";
 
 export default function Orders() {
@@ -127,8 +130,7 @@ export default function Orders() {
       normalized.userEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       normalized.userPhone?.includes(searchTerm);
 
-    const backendStatus = mapFrontendToBackendStatus(order.status);
-    const matchStatus = filterStatus === "ALL" || backendStatus === filterStatus;
+    const matchStatus = matchesFilter(order.status, filterStatus);
     return matchSearch && matchStatus;
   });
 
@@ -246,6 +248,28 @@ export default function Orders() {
           <span>→</span>
           <span>COMPLETED</span>
         </div>
+
+        {/* Multi-status filter note */}
+        {filterStatus === 'RETURNED_AND_COMPLETED' && STATUS_FILTER_NOTES.RETURNED_AND_COMPLETED && (
+          <div className="mt-2 flex items-start gap-2 text-[11px] text-cyan-400/80">
+            <svg className="flex-shrink-0 w-3.5 h-3.5 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{STATUS_FILTER_NOTES.RETURNED_AND_COMPLETED}</span>
+          </div>
+        )}
+
+        {/* Single-status filter confirmation */}
+        {(filterStatus === 'RETURNED' || filterStatus === 'COMPLETED') && (
+          <div className="mt-2 flex items-start gap-2 text-[11px] text-slate-500">
+            <svg className="flex-shrink-0 w-3.5 h-3.5 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>
+              {filterStatus === 'RETURNED' ? 'Chỉ hiển thị đơn đang chờ hoàn tất (RETURNED)' : 'Chỉ hiển thị đơn đã hoàn thành (COMPLETED)'}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Orders Table */}
