@@ -12,13 +12,13 @@ function Footer() {
     { icon: <FiMessageCircle size={12} />, label: 'Giao tận nơi' },
   ];
 
-  // Shared card style for consistency
+  // Shared card style for consistency - Light/Dark mode aware
   const cardStyle = {
-    backgroundColor: 'rgba(var(--bg-primary-rgb, 255, 255, 255), 0.6)',
+    backgroundColor: 'rgba(var(--bg-primary-rgb, 255, 255, 255), 0.7)',
     backdropFilter: 'blur(12px)',
     WebkitBackdropFilter: 'blur(12px)',
-    border: '1px solid rgba(var(--border-color-rgb, 200, 200, 200), 0.2)',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(6, 182, 212, 0.04)',
+    border: '1px solid rgba(var(--border-color-rgb, 226, 232, 240), 0.25)',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
   };
 
   const STORE_ADDRESS = 'K359S Khu Phố Bình Hòa, Phường Lái Thiêu, Thành Phố Hồ Chí Minh';
@@ -87,12 +87,12 @@ function Footer() {
                     key={i}
                     className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium"
                     style={{
-                      backgroundColor: 'rgba(6, 182, 212, 0.08)',
-                      border: '1px solid rgba(6, 182, 212, 0.15)',
-                      color: 'var(--text-muted)'
+                      backgroundColor: 'rgba(6, 182, 212, 0.12)',
+                      border: '1px solid rgba(6, 182, 212, 0.2)',
+                      color: 'var(--text-secondary)'
                     }}
                   >
-                    <span style={{ color: 'var(--primary)' }}>{badge.icon}</span>
+                    <span className="text-cyan-400">{badge.icon}</span>
                     {badge.label}
                   </div>
                 ))}
@@ -158,13 +158,13 @@ function Footer() {
                     <button
                       onClick={() => navigate(item.route)}
                       className="w-full flex items-center gap-2.5 py-1.5 px-2 rounded-lg text-sm transition-all duration-200 hover:bg-cyan-500/8 group"
-                      style={{ color: 'var(--text-muted)' }}
+                      style={{ color: 'var(--text-secondary)' }}
                     >
-                      <span className="flex items-center justify-center w-6 h-6 rounded-md flex-shrink-0 transition-colors duration-200" style={{ backgroundColor: 'rgba(6, 182, 212, 0.08)' }}>
-                        <span className="text-cyan-400/70 group-hover:text-cyan-400 transition-colors">{item.icon}</span>
+                      <span className="flex items-center justify-center w-6 h-6 rounded-md flex-shrink-0 transition-colors duration-200" style={{ backgroundColor: 'rgba(6, 182, 212, 0.1)' }}>
+                        <span className="text-cyan-400 group-hover:text-cyan-300 transition-colors">{item.icon}</span>
                       </span>
-                      <span className="group-hover:text-cyan-400 transition-colors text-left flex-1">{item.label}</span>
-                      <span className="opacity-0 group-hover:opacity-60 transition-opacity text-[10px]">→</span>
+                      <span className="group-hover:text-cyan-300 transition-colors text-left flex-1">{item.label}</span>
+                      <span className="opacity-0 group-hover:opacity-80 transition-opacity text-[10px] text-cyan-400">→</span>
                     </button>
                   </li>
                 ))}
@@ -252,9 +252,9 @@ function Footer() {
                   aria-label="Gọi ngay 035 950 6390"
                   className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105"
                   style={{
-                    backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                    backgroundColor: 'rgba(6, 182, 212, 0.12)',
                     color: 'var(--primary)',
-                    border: '1px solid rgba(6, 182, 212, 0.2)'
+                    border: '1px solid rgba(6, 182, 212, 0.25)'
                   }}
                 >
                   <FiPhone size={11} />
@@ -269,10 +269,10 @@ function Footer() {
                   href="tel:0359506390"
                   className="flex items-center gap-2 text-xs py-1.5 px-2 rounded-lg transition-all duration-200 contact-link group"
                 >
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full flex-shrink-0" style={{ backgroundColor: 'rgba(6, 182, 212, 0.12)' }}>
+                  <div className="flex items-center justify-center w-6 h-6 rounded-full flex-shrink-0" style={{ backgroundColor: 'rgba(6, 182, 212, 0.15)' }}>
                     <FiPhone size={11} className="text-cyan-400" />
                   </div>
-                  <span className="font-medium group-hover:text-cyan-400 transition-colors">035 950 6390</span>
+                  <span className="font-medium group-hover:text-cyan-300 transition-colors" style={{ color: 'var(--text-secondary)' }}>035 950 6390</span>
                 </a>
 
                 {/* Zalo */}
@@ -282,10 +282,10 @@ function Footer() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-xs py-1.5 px-2 rounded-lg transition-all duration-200 contact-link group"
                 >
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full flex-shrink-0" style={{ backgroundColor: 'rgba(0, 104, 255, 0.12)' }}>
+                  <div className="flex items-center justify-center w-6 h-6 rounded-full flex-shrink-0" style={{ backgroundColor: 'rgba(0, 104, 255, 0.15)' }}>
                     <FiMessageCircle size={11} className="text-[#0068ff]" />
                   </div>
-                  <span className="font-medium group-hover:text-[#0068ff] transition-colors">Zalo</span>
+                  <span className="font-medium group-hover:text-blue-400 transition-colors" style={{ color: 'var(--text-secondary)' }}>Zalo</span>
                 </a>
 
                 {/* Email */}
@@ -293,10 +293,10 @@ function Footer() {
                   href="mailto:lensrentcamera@gmail.com"
                   className="flex items-center gap-2 text-xs py-1.5 px-2 rounded-lg transition-all duration-200 contact-link group"
                 >
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full flex-shrink-0" style={{ backgroundColor: 'rgba(6, 182, 212, 0.12)' }}>
+                  <div className="flex items-center justify-center w-6 h-6 rounded-full flex-shrink-0" style={{ backgroundColor: 'rgba(6, 182, 212, 0.15)' }}>
                     <FiMail size={11} className="text-cyan-400" />
                   </div>
-                  <span className="font-medium group-hover:text-cyan-400 transition-colors truncate">lensrentcamera@gmail.com</span>
+                  <span className="font-medium group-hover:text-cyan-300 transition-colors truncate" style={{ color: 'var(--text-secondary)' }}>lensrentcamera@gmail.com</span>
                 </a>
               </div>
             </div>
