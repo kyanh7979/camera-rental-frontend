@@ -1,4 +1,4 @@
-import { FiSend, FiPhone, FiMail, FiCamera, FiMessageCircle, FiZap, FiHome, FiShield, FiTruck, FiRefreshCw, FiShoppingBag, FiUser } from 'react-icons/fi';
+import { FiSend, FiPhone, FiMail, FiCamera, FiMessageCircle, FiZap, FiHome, FiShield, FiTruck, FiRefreshCw, FiShoppingBag, FiUser, FiMapPin } from 'react-icons/fi';
 import { FaFacebookF, FaInstagram } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes.js';
@@ -11,6 +11,18 @@ function Footer() {
     { icon: <FiCamera size={12} />, label: 'Thuê linh hoạt' },
     { icon: <FiMessageCircle size={12} />, label: 'Giao tận nơi' },
   ];
+
+  // Shared card style for consistency
+  const cardStyle = {
+    backgroundColor: 'rgba(var(--bg-primary-rgb, 255, 255, 255), 0.6)',
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
+    border: '1px solid rgba(var(--border-color-rgb, 200, 200, 200), 0.2)',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(6, 182, 212, 0.04)',
+  };
+
+  const STORE_ADDRESS = 'K359S Khu Phố Bình Hòa, Phường Lái Thiêu, Thành Phố Hồ Chí Minh';
+  const GOOGLE_MAPS_URL = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(STORE_ADDRESS);
 
   return (
     <footer
@@ -31,55 +43,88 @@ function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-10 md:px-6">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-[1.3fr_1fr_1.1fr]">
 
-          {/* Column 1: Logo & Description + Feature Badges */}
+          {/* Column 1: LensRent Info Card */}
           <div>
-            {/* Logo */}
+            {/* Card wrapper */}
             <div
-              className="flex cursor-pointer items-center gap-2 mb-4"
-              onClick={() => navigate(ROUTES.HOME)}
+              className="rounded-2xl p-4 transition-all duration-300 hover:-translate-y-0.5"
+              style={cardStyle}
             >
+              {/* Logo */}
               <div
-                className="flex h-10 w-10 items-center justify-center rounded-xl flex-shrink-0"
-                style={{
-                  background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-                  boxShadow: '0 4px 14px rgba(6, 182, 212, 0.3)'
-                }}
+                className="flex cursor-pointer items-center gap-2 mb-3"
+                onClick={() => navigate(ROUTES.HOME)}
               >
-                <FiCamera className="text-white text-lg" />
-              </div>
-              <span
-                className="text-base font-bold tracking-[0.15em]"
-                style={{ color: 'var(--text-primary)' }}
-              >
-                LENSRENT
-              </span>
-            </div>
-
-            {/* Description */}
-            <p
-              className="text-sm leading-relaxed mb-4"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              Dịch vụ cho thuê máy ảnh và thiết bị quay phim chuyên nghiệp.
-              Đa dạng sản phẩm từ các thương hiệu hàng đầu.
-            </p>
-
-            {/* Feature Badges */}
-            <div className="flex flex-wrap gap-2">
-              {featureBadges.map((badge, i) => (
                 <div
-                  key={i}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl flex-shrink-0"
                   style={{
-                    backgroundColor: 'var(--bg-primary)',
-                    border: '1px solid var(--border-color)',
-                    color: 'var(--text-muted)'
+                    background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+                    boxShadow: '0 4px 14px rgba(6, 182, 212, 0.3)'
                   }}
                 >
-                  <span style={{ color: 'var(--primary)' }}>{badge.icon}</span>
-                  {badge.label}
+                  <FiCamera className="text-white text-base" />
                 </div>
-              ))}
+                <span
+                  className="text-sm font-bold tracking-[0.15em]"
+                  style={{ color: 'var(--text-primary)' }}
+                >
+                  LENSRENT
+                </span>
+              </div>
+
+              {/* Description */}
+              <p
+                className="text-xs leading-relaxed mb-3"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                Dịch vụ cho thuê máy ảnh và thiết bị quay phim chuyên nghiệp. Đa dạng sản phẩm từ các thương hiệu hàng đầu.
+              </p>
+
+              {/* Feature Badges */}
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                {featureBadges.map((badge, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium"
+                    style={{
+                      backgroundColor: 'rgba(6, 182, 212, 0.08)',
+                      border: '1px solid rgba(6, 182, 212, 0.15)',
+                      color: 'var(--text-muted)'
+                    }}
+                  >
+                    <span style={{ color: 'var(--primary)' }}>{badge.icon}</span>
+                    {badge.label}
+                  </div>
+                ))}
+              </div>
+
+              {/* Divider */}
+              <div className="h-px mb-3" style={{ backgroundColor: 'var(--border-color)', opacity: 0.4 }} />
+
+              {/* Address */}
+              <div>
+                <span
+                  className="text-[10px] font-semibold uppercase tracking-wider mb-1.5 block"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  Địa chỉ
+                </span>
+                <a
+                  href={GOOGLE_MAPS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Mở địa chỉ LensRent trên Google Maps"
+                  title="Mở Google Maps"
+                  className="flex items-start gap-2 group"
+                >
+                  <div className="flex items-center justify-center w-6 h-6 rounded-md flex-shrink-0 mt-0.5 transition-all duration-200 group-hover:bg-cyan-500/15" style={{ backgroundColor: 'rgba(6, 182, 212, 0.1)' }}>
+                    <FiMapPin size={13} className="text-cyan-400" />
+                  </div>
+                  <span className="text-[11px] leading-snug group-hover:text-cyan-400 transition-colors" style={{ color: 'var(--text-secondary)' }}>
+                    {STORE_ADDRESS}
+                  </span>
+                </a>
+              </div>
             </div>
           </div>
 
@@ -95,13 +140,7 @@ function Footer() {
             {/* Quick Links Card */}
             <div
               className="rounded-2xl p-4 transition-all duration-300 hover:-translate-y-0.5"
-              style={{
-                backgroundColor: 'rgba(var(--bg-primary-rgb, 255, 255, 255), 0.6)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                border: '1px solid rgba(var(--border-color-rgb, 200, 200, 200), 0.2)',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(6, 182, 212, 0.04)',
-              }}
+              style={cardStyle}
             >
               <ul className="space-y-1">
                 {[
@@ -143,13 +182,7 @@ function Footer() {
             {/* Glassmorphism Contact Card */}
             <div
               className="rounded-2xl p-4 transition-all duration-300 hover:-translate-y-0.5"
-              style={{
-                backgroundColor: 'rgba(var(--bg-primary-rgb, 255, 255, 255), 0.6)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                border: '1px solid rgba(var(--border-color-rgb, 200, 200, 200), 0.2)',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(6, 182, 212, 0.04)',
-              }}
+              style={cardStyle}
             >
               {/* CTA Text */}
               <p
