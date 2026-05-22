@@ -40,14 +40,14 @@ function Footer() {
         }}
       />
 
-      <div className="mx-auto max-w-7xl px-4 py-10 md:px-6">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-[1.3fr_1fr_1.1fr]">
+      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
+        {/* 3-Column Cards Grid */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-[1.15fr_1fr_1fr] items-stretch">
 
           {/* Column 1: LensRent Info Card */}
-          <div>
-            {/* Card wrapper */}
+          <div className="flex flex-col h-full">
             <div
-              className="rounded-2xl p-4 transition-all duration-300 hover:-translate-y-0.5"
+              className="rounded-2xl p-4 flex flex-col flex-1 transition-all duration-300 hover:-translate-y-0.5"
               style={cardStyle}
             >
               {/* Logo */}
@@ -98,8 +98,11 @@ function Footer() {
                 ))}
               </div>
 
+              {/* Spacer */}
+              <div className="flex-1" />
+
               {/* Divider */}
-              <div className="h-px mb-3" style={{ backgroundColor: 'var(--border-color)', opacity: 0.4 }} />
+              <div className="h-px my-3" style={{ backgroundColor: 'var(--border-color)', opacity: 0.4 }} />
 
               {/* Address */}
               <div>
@@ -129,20 +132,19 @@ function Footer() {
           </div>
 
           {/* Column 2: Quick Links - Matching Card Style */}
-          <div>
-            <h4
-              className="font-semibold mb-4 text-sm"
-              style={{ color: 'var(--text-primary)' }}
-            >
-              Liên kết nhanh
-            </h4>
-
-            {/* Quick Links Card */}
+          <div className="flex flex-col h-full">
             <div
-              className="rounded-2xl p-4 transition-all duration-300 hover:-translate-y-0.5"
+              className="rounded-2xl p-4 flex flex-col flex-1 transition-all duration-300 hover:-translate-y-0.5"
               style={cardStyle}
             >
-              <ul className="space-y-1">
+              <h4
+                className="font-semibold mb-3 text-sm"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                Liên kết nhanh
+              </h4>
+
+              <ul className="space-y-0.5 flex-1">
                 {[
                   { label: 'Trang chủ', route: ROUTES.HOME, icon: <FiHome size={13} /> },
                   { label: 'Máy ảnh', route: ROUTES.CAMERAS, icon: <FiCamera size={13} /> },
@@ -155,7 +157,7 @@ function Footer() {
                   <li key={i}>
                     <button
                       onClick={() => navigate(item.route)}
-                      className="w-full flex items-center gap-2.5 py-2 px-2 rounded-lg text-sm transition-all duration-200 hover:bg-cyan-500/8 group"
+                      className="w-full flex items-center gap-2.5 py-1.5 px-2 rounded-lg text-sm transition-all duration-200 hover:bg-cyan-500/8 group"
                       style={{ color: 'var(--text-muted)' }}
                     >
                       <span className="flex items-center justify-center w-6 h-6 rounded-md flex-shrink-0 transition-colors duration-200" style={{ backgroundColor: 'rgba(6, 182, 212, 0.08)' }}>
@@ -171,19 +173,18 @@ function Footer() {
           </div>
 
           {/* Column 3: Contact & Social - Glassmorphism Card */}
-          <div>
-            <h4
-              className="font-semibold mb-4 text-sm"
-              style={{ color: 'var(--text-primary)' }}
-            >
-              Kết nối
-            </h4>
-
-            {/* Glassmorphism Contact Card */}
+          <div className="flex flex-col h-full">
             <div
-              className="rounded-2xl p-4 transition-all duration-300 hover:-translate-y-0.5"
+              className="rounded-2xl p-4 flex flex-col flex-1 transition-all duration-300 hover:-translate-y-0.5"
               style={cardStyle}
             >
+              <h4
+                className="font-semibold mb-3 text-sm"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                Kết nối
+              </h4>
+
               {/* CTA Text */}
               <p
                 className="text-xs mb-3 leading-relaxed font-medium"
