@@ -27,13 +27,21 @@ export default function Orders() {
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [filterStatus, searchTerm]);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      console.log("🔄 Đang gọi API /rentals...");
-      const res = await api.get("/rentals");
+      const params = {};
+      if (filterStatus && filterStatus !== "ALL") {
+        params.status = filterStatus;
+      }
+      if (searchTerm.trim()) {
+        params.keyword = searchTerm.trim();
+      }
+
+      console.log("🔄 Đang gọi API /rentals với params:", params);
+      const res = await api.get("/rentals", { params });
       console.log("📦 Response nhận được:", res);
       console.log("📦 res.data:", res?.data);
       console.log("📦 res.data.data:", res?.data?.data);
@@ -120,19 +128,7 @@ export default function Orders() {
     totalPrice: order.totalPrice || order.totalAmount,
   });
 
-  const filteredOrders = orders.filter((order) => {
-    const normalized = normalizeOrder(order);
-    const matchSearch =
-      searchTerm === "" ||
-      order.id?.toString().includes(searchTerm) ||
-      order.orderCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      normalized.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      normalized.userEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      normalized.userPhone?.includes(searchTerm);
-
-    const matchStatus = matchesFilter(order.status, filterStatus);
-    return matchSearch && matchStatus;
-  });
+  const filteredOrders = orders;
 
   const getOrderStatusStyle = (status) => {
     const config = getStatusDisplayProfile(status);
