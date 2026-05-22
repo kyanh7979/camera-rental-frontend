@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { FiHeart, FiStar, FiCamera, FiZoomIn, FiCheck, FiAlertCircle } from 'react-icons/fi';
+import { FiHeart, FiStar, FiCamera, FiZoomIn, FiAlertCircle } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { memo, useState } from 'react';
 import { formatCurrency } from '../utils/formatCurrency.js';
@@ -76,7 +76,6 @@ function CameraCard({ camera, index }) {
 
   const isWishlisted = items.some((item) => String(item.id) === cameraId);
 
-  // Check if product is available
   const availability = camera.availability || camera.stockQuantity;
   const isOutOfStock =
     (typeof availability === 'number' && availability <= 0) ||
@@ -94,13 +93,11 @@ function CameraCard({ camera, index }) {
     e.stopPropagation();
     e.preventDefault();
 
-    // Check if out of stock
     if (isOutOfStock) {
       showError('Sản phẩm hiện không khả dụng');
       return;
     }
 
-    // If not authenticated, redirect to login
     if (!isAuthenticated) {
       showSuccess('Vui lòng đăng nhập để thuê nhanh');
       navigate(ROUTES.LOGIN, {
@@ -109,7 +106,6 @@ function CameraCard({ camera, index }) {
       return;
     }
 
-    // Add to cart and navigate to checkout
     addToCart(
       {
         ...camera,
@@ -124,33 +120,22 @@ function CameraCard({ camera, index }) {
     navigate(ROUTES.CHECKOUT);
   };
 
-  const handleQuickRentClick = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    handleQuickRent(e);
-  };
-
-  const handleQuickRentButton = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    handleQuickRent(e);
-  };
-
   return (
     <motion.article
       whileHover={{ y: -8, scale: 1.02 }}
       onClick={() => navigate(ROUTES.CAMERA_DETAIL.replace(':id', cameraId))}
-      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-2xl"
+      className="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-2xl"
       style={{
         backgroundColor: 'var(--bg-card)',
         borderColor: 'var(--border-color)',
         boxShadow: 'var(--shadow-lg)',
-        lineHeight: 0,
       }}
     >
-      {/* IMAGE */}
-      <div className="relative h-56 overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900"
-           style={{ isolation: 'isolate', lineHeight: 0 }}>
+      {/* IMAGE SECTION */}
+      <div
+        className="relative flex-shrink-0 overflow-hidden"
+        style={{ height: '14rem' }}
+      >
         {!imageUrl || imgError ? (
           <div className="flex h-full items-center justify-center">
             <FiCamera className="w-16 h-16 opacity-30" style={{ color: 'var(--text-muted)' }} />
@@ -160,134 +145,156 @@ function CameraCard({ camera, index }) {
             src={imageUrl}
             alt={name}
             className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
-            style={{ display: 'block', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+            style={{
+              display: 'block',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+            }}
             onError={() => setImgError(true)}
           />
         )}
-        
+
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-        {/* Featured Badge */}
-        {isFeatured && (
-          <div className="absolute left-3 top-3">
-            <span className="flex items-center gap-1 rounded-lg bg-gradient-to-r px-2.5 py-1 text-xs font-bold text-white shadow-lg"
-                  style={{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)' }}>
-              <FiStar className="w-3 h-3 fill-current" />
-              Nổi bật
-            </span>
-          </div>
-        )}
-
-        {/* New Badge */}
-        {isNew && !isFeatured && (
-          <div className="absolute left-3 top-3">
-            <span className="rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-2.5 py-1 text-xs font-bold text-white shadow-lg">
-              Mới
-            </span>
-          </div>
-        )}
-
-        {/* Low Stock Warning */}
-        {lowStock && !isOutOfStock && (
-          <div className="absolute right-3 top-3">
-            <span className="flex items-center gap-1 rounded-lg bg-amber-500/90 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
-              <FiAlertCircle className="w-3 h-3" />
-              Sắp hết
-            </span>
-          </div>
-        )}
-
-        {/* Wishlist Button */}
-        <motion.button
-          onClick={handleWishlist}
-          className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-xl backdrop-blur-md transition-all duration-200"
-          style={{ 
-            backgroundColor: isWishlisted ? 'rgba(239, 68, 68, 0.9)' : 'rgba(15, 23, 42, 0.6)',
-            color: isWishlisted ? 'white' : 'white'
+        <div
+          className="pointer-events-none opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to top, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.20) 50%, transparent 100%)',
           }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <FiHeart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
-        </motion.button>
-
-        {/* Category Badge */}
-        {categoryName && !isFeatured && !isNew && (
-          <div className="absolute left-3 top-3">
-            <span className="rounded-lg px-2.5 py-1 text-xs font-medium backdrop-blur-md"
-                  style={{ 
-                    backgroundColor: 'rgba(6, 182, 212, 0.8)',
-                    color: 'white'
-                  }}>
-              {categoryName}
-            </span>
-          </div>
-        )}
+        />
 
         {/* Out of Stock Overlay */}
         {isOutOfStock && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div
+            className="pointer-events-auto"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0,0,0,0.6)',
+              backdropFilter: 'blur(4px)',
+            }}
+          >
             <span className="rounded-xl bg-red-600/90 px-4 py-2 text-sm font-bold text-white shadow-lg">
               Hết hàng
             </span>
           </div>
         )}
 
-        {/* Quick Rent Button */}
-        {!isOutOfStock && (
-          <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-            <button
-              onClick={handleQuickRentButton}
-              className="w-full rounded-xl py-3 text-sm font-bold shadow-lg transition-all duration-200 hover:shadow-xl"
+        {/* BADGES LAYER */}
+        <div
+          className="pointer-events-none"
+          style={{ position: 'absolute', inset: 0 }}
+        >
+          {/* Top-left: Featured / New / Category */}
+          <div style={{ position: 'absolute', left: '0.75rem', top: '0.75rem' }}>
+            {isFeatured ? (
+              <span
+                className="pointer-events-auto flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-bold text-white shadow-lg"
+                style={{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)' }}
+              >
+                <FiStar className="w-3 h-3 fill-current" />
+                Nổi bật
+              </span>
+            ) : isNew ? (
+              <span className="pointer-events-auto rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-2.5 py-1 text-xs font-bold text-white shadow-lg">
+                Mới
+              </span>
+            ) : categoryName ? (
+              <span
+                className="pointer-events-auto rounded-lg px-2.5 py-1 text-xs font-medium backdrop-blur-md"
+                style={{ backgroundColor: 'rgba(6, 182, 212, 0.8)', color: 'white' }}
+              >
+                {categoryName}
+              </span>
+            ) : null}
+          </div>
+
+          {/* Top-right: Wishlist */}
+          <div style={{ position: 'absolute', right: '0.75rem', top: '0.75rem' }}>
+            <motion.button
+              onClick={handleWishlist}
+              className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-xl backdrop-blur-md transition-all duration-200"
               style={{
-                backgroundColor: 'var(--primary)',
+                backgroundColor: isWishlisted ? 'rgba(239, 68, 68, 0.9)' : 'rgba(15, 23, 42, 0.6)',
                 color: 'white',
-                boxShadow: '0 4px 14px rgba(6, 182, 212, 0.4)'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = '0.9';
-                e.currentTarget.style.transform = 'scale(1.02)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = '1';
-                e.currentTarget.style.transform = 'scale(1)';
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <FiHeart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
+            </motion.button>
+          </div>
+
+          {/* Top-right below wishlist: Low stock */}
+          {lowStock && !isOutOfStock && (
+            <div style={{ position: 'absolute', right: '0.75rem', top: '3.25rem' }}>
+              <span className="pointer-events-auto flex items-center gap-1 rounded-lg bg-amber-500/90 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                <FiAlertCircle className="w-3 h-3" />
+                Sắp hết
+              </span>
+            </div>
+          )}
+
+          {/* Bottom: Quick Rent */}
+          {!isOutOfStock && (
+            <div
+              className="pointer-events-auto opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0"
+              style={{
+                position: 'absolute',
+                bottom: '0.75rem',
+                left: '0.75rem',
+                right: '0.75rem',
+                transform: 'translateY(0.5rem)',
               }}
             >
-              Thuê ngay
-            </button>
-          </div>
-        )}
+              <button
+                onClick={handleQuickRent}
+                className="w-full rounded-xl py-3 text-sm font-bold shadow-lg transition-all duration-200 hover:shadow-xl hover:opacity-90"
+                style={{
+                  backgroundColor: 'var(--primary)',
+                  color: 'white',
+                  boxShadow: '0 4px 14px rgba(6, 182, 212, 0.4)',
+                }}
+              >
+                Thuê ngay
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* CONTENT */}
-      <div className="flex flex-1 flex-col gap-2.5 p-4" style={{ lineHeight: 'normal' }}>
+      {/* CONTENT SECTION */}
+      <div className="flex min-h-0 flex-1 flex-col gap-2 p-4">
         {/* Brand Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className={`text-xs font-bold uppercase tracking-wider ${brandColor.text}`}>
+          <div className="flex items-center gap-2 overflow-hidden">
+            <span className={`flex-shrink-0 text-xs font-bold uppercase tracking-wider ${brandColor.text}`}>
               {brandName || 'Unknown Brand'}
             </span>
-            <div className={`h-px w-6 bg-gradient-to-r ${brandColor.bg}`} />
+            <div className={`h-px w-6 flex-shrink-0 bg-gradient-to-r ${brandColor.bg}`} />
           </div>
-          {categoryName && (
-            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              {categoryName}
-            </span>
-          )}
+          <span className="flex-shrink-0 text-xs" style={{ color: 'var(--text-muted)' }}>
+            {categoryName}
+          </span>
         </div>
 
         {/* Name */}
-        <h3 className="font-bold leading-snug line-clamp-2 group-hover:text-cyan-400 transition-colors duration-200 text-base"
-            style={{ color: 'var(--text-primary)' }}>
+        <h3
+          className="min-h-0 flex-shrink-0 font-bold leading-snug line-clamp-2 text-base transition-colors duration-200 group-hover:text-cyan-400"
+          style={{ color: 'var(--text-primary)' }}
+        >
           {name}
         </h3>
 
-        {/* Rating & Reviews */}
-        <div className="flex items-center gap-2">
+        {/* Rating */}
+        <div className="flex min-h-0 flex-shrink-0 items-center gap-2">
           <div className="flex items-center gap-0.5">
             {[...Array(5)].map((_, i) => (
-              <FiStar 
+              <FiStar
                 key={i}
                 className={`w-4 h-4 ${i < Math.round(camera.rating || 5) ? 'fill-current' : ''}`}
                 style={{ color: i < Math.round(camera.rating || 5) ? '#fbbf24' : 'var(--text-muted)' }}
@@ -306,42 +313,45 @@ function CameraCard({ camera, index }) {
 
         {/* Description */}
         {camera.description && (
-          <p className="text-xs line-clamp-2 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+          <p className="min-h-0 flex-shrink-0 line-clamp-2 text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
             {camera.description}
           </p>
         )}
 
         {/* Stock Status */}
         {lowStock && (
-          <div className="flex items-center gap-1 text-xs text-amber-500">
+          <div className="flex min-h-0 flex-shrink-0 items-center gap-1 text-xs text-amber-500">
             <FiAlertCircle className="w-3.5 h-3.5" />
             <span>Chỉ còn {availability} sản phẩm</span>
           </div>
         )}
 
         {/* Price & Action */}
-        <div className="mt-auto flex items-end justify-between pt-3 border-t" style={{ borderColor: 'var(--border-color)' }}>
+        <div
+          className="mt-auto flex min-h-0 flex-shrink-0 items-end justify-between border-t pt-3"
+          style={{ borderColor: 'var(--border-color)' }}
+        >
           <div>
             <p className="text-2xl font-extrabold" style={{ color: 'var(--primary)' }}>
               {formatCurrency(price)}
             </p>
             <p className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>/ ngày</p>
           </div>
-          
+
           <motion.button
             onClick={(e) => {
               e.stopPropagation();
               navigate(ROUTES.CAMERA_DETAIL.replace(':id', cameraId));
             }}
             className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200"
-            style={{ 
+            style={{
               backgroundColor: 'var(--bg-secondary)',
-              color: 'var(--text-secondary)'
+              color: 'var(--text-secondary)',
             }}
-            whileHover={{ 
+            whileHover={{
               backgroundColor: 'var(--primary)',
               color: 'white',
-              scale: 1.05
+              scale: 1.05,
             }}
           >
             <FiZoomIn className="w-4 h-4" />
